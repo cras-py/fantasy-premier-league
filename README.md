@@ -26,6 +26,13 @@ A modern, single-page application built on Vite + React. Styled with curated col
 * **My Team Section**: Visualize your starting XI and bench. View current gameweek points, overall points, team value, bank balance, and top-performing squad members utilizing actual Premier League player headshots and official team badges.
 * **League Standings**: Inspect how your private mini-league stands. Seamlessly traces points, manager details, and overall performance without cluttered placeholders.
 * **AI Transfer Hub**: Displays structured recommendations from the Gemini Agent, putting premium AI insights directly at your fingertips.
+* **Weekly PDF Reports**: Interactively view the custom-generated PDF gameweek reports right from the browser.
+
+### 📄 4. Advanced Async PDF Reports
+A robust Python PDF generation module that creates detailed gameweek summaries.
+* **Async Engine**: Uses `aiohttp` and `fpl` to rapidly fetch comprehensive manager, league, and gameweek data.
+* **Data Visualizations**: Embeds dynamic `matplotlib` bump charts directly into the PDF to visualize rank and points trajectories.
+* **Seamless Integration**: The generated PDF (`gw_report.pdf`) is piped directly to the React dashboard's `public` directory for immediate viewing.
 
 ---
 
@@ -56,7 +63,8 @@ fantasy-premier-league/
 │   └── data_extraction/          # Python extraction backend
 │       ├── config.py             # Config paths & constants
 │       ├── extractor.py          # Main FPL API connector & parser
-│       └── main.py               # CLI runner entrypoint
+│       ├── main.py               # CLI runner entrypoint
+│       └── pdf_report_generator.py # Async PDF report engine with Matplotlib
 ├── .env                          # Configuration (credentials & IDs)
 ├── requirements.txt              # Python library dependencies
 └── README.md                     # Platform documentation

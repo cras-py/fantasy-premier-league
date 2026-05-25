@@ -1177,19 +1177,24 @@ def generate_report_outputs(processed_data, gw):
     # --- 1. CSV Generation ---
     # Export league-specific data
     league_id = league.id if league else processed_data.get('league_id', 'unknown')
-    standings_df.to_csv(f'fpl_league_{league_id}_standings_gw{gw}.csv', index=False)
-    eo_df.to_csv(f'fpl_league_{league_id}_captains_gw{gw}.csv', index=False)
-    plob_df.to_csv(f'fpl_league_{league_id}_bench_analysis_gw{gw}.csv', index=False)
+    
+    import os
+    output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "data", "processed", "weekly_pdf")
+    os.makedirs(output_dir, exist_ok=True)
+    
+    standings_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_standings_gw{gw}.csv'), index=False)
+    eo_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_captains_gw{gw}.csv'), index=False)
+    plob_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_bench_analysis_gw{gw}.csv'), index=False)
     
     # Export manager efficiency summary if we have league data
     if league is not None:
-        best_value.to_csv(f'fpl_league_{league_id}_manager_efficiency_gw{gw}.csv', index=False)
-        transfers_df.to_csv(f'fpl_league_{league_id}_transfers_gw{gw}.csv', index=False)
-        value_df.to_csv(f'fpl_league_{league_id}_squad_value_gw{gw}.csv', index=False)
-        form_df.to_csv(f'fpl_league_{league_id}_form_guide_gw{gw}.csv', index=False)
-        consistency_df.to_csv(f'fpl_league_{league_id}_consistency_gw{gw}.csv', index=False)
-        most_owned_df.to_csv(f'fpl_league_{league_id}_exposure_most_owned_gw{gw}.csv', index=False)
-        least_owned_df.to_csv(f'fpl_league_{league_id}_exposure_least_owned_gw{gw}.csv', index=False)
+        best_value.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_manager_efficiency_gw{gw}.csv'), index=False)
+        transfers_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_transfers_gw{gw}.csv'), index=False)
+        value_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_squad_value_gw{gw}.csv'), index=False)
+        form_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_form_guide_gw{gw}.csv'), index=False)
+        consistency_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_consistency_gw{gw}.csv'), index=False)
+        most_owned_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_exposure_most_owned_gw{gw}.csv'), index=False)
+        least_owned_df.to_csv(os.path.join(output_dir, f'fpl_league_{league_id}_exposure_least_owned_gw{gw}.csv'), index=False)
     
     # --- 2. Markdown Generation ---
     md_string = f"# {league_name} - Gameweek {gw} Analysis\n\n"
@@ -1241,7 +1246,7 @@ def generate_report_outputs(processed_data, gw):
         md_string += markdown_table(least_owned_df.to_dict(orient='records')).get_markdown() + "\n\n"
 
     # Save Markdown file
-    with open(f'fpl_report_gw{gw}.md', 'w', encoding='utf-8') as f:
+    with open(os.path.join(output_dir, f'fpl_report_gw{gw}.md'), 'w', encoding='utf-8') as f:
         f.write(md_string)
 
     # --- 3. PDF Generation ---
