@@ -38,12 +38,26 @@ def main():
         print(f"Live Gameweek ID: {args.gw}")
     print("==================================================")
 
+    import os
+    from dotenv import load_dotenv
+    
+    load_dotenv()
+    
     try:
         extractor = FPLExtractor(rate_limit_delay=args.delay)
         
         # Run standard static/fixtures extraction
         extractor.run_full_extraction(deep=args.deep)
         
+        # Run user and league data extraction
+        team_id = os.getenv("FPL_TEAM_ID")
+        league_id = os.getenv("FPL_LEAGUE_ID")
+        
+        if team_id:
+            extractor.fetch_user_data(team_id)
+        if league_id:
+            extractor.fetch_league_data(league_id)
+            
         # Run live gameweek stats if requested
         if args.gw:
             extractor.fetch_live_gw_data(args.gw)

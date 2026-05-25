@@ -82,6 +82,81 @@ class FPLExtractor:
             print(f"Warning: Failed to fetch live gameweek {gw_id}: {e}")
             return None
 
+    def fetch_user_data(self, entry_id):
+        """Fetches data for a specific user team."""
+        print(f"Fetching user data for team {entry_id}...")
+        url = ENDPOINTS["entry"].format(entry_id=entry_id)
+        hist_url = ENDPOINTS["entry_history"].format(entry_id=entry_id)
+        try:
+            data = self._get(url)
+            history = self._get(hist_url)
+            
+            # Fetch picks based on current_event
+            picks = None
+            current_event = data.get("current_event")
+            if current_event:
+                picks_url = ENDPOINTS["entry_picks"].format(entry_id=entry_id, gw_id=current_event)
+                try:
+                    picks = self._get(picks_url)
+                except Exception as e:
+                    print(f"Warning: Failed to fetch picks for GW {current_event}: {e}")
+            
+            squad_details = []
+            if picks and "picks" in picks:
+                try:
+                    raw_bootstrap = RAW_DIR / "bootstrap_static.json"
+                    if raw_bootstrap.exists():
+                        with open(raw_bootstrap, "r", encoding="utf-8") as f:
+                            bs_data = json.load(f)
+                        elements = {el["id"]: el for el in bs_data.get("elements", [])}
+                        for p in picks["picks"]:
+                            el_id = p["element"]
+                            if el_id in elements:
+                                el = elements[el_id]
+                                squad_details.append({
+                                    "id": el_id,
+                                    "web_name": el["web_name"],
+                                    "total_points": el["total_points"],
+                                    "event_points": el["event_points"],
+                                    "code": el["code"],
+                                    "is_captain": p["is_captain"],
+                                    "multiplier": p["multiplier"]
+                                })
+                except Exception as e:
+                    print(f"Warning: Failed to parse squad details: {e}")
+            
+            # Combine or save separately
+            combined = {"entry": data, "history": history, "picks": picks, "squad": squad_details}
+            raw_path = RAW_DIR / "user" / f"entry_{entry_id}.json"
+            processed_path = PROCESSED_DIR / "user_entry.json"
+            with open(raw_path, "w", encoding="utf-8") as f:
+                json.dump(combined, f, indent=4)
+            with open(processed_path, "w", encoding="utf-8") as f:
+                json.dump(combined, f, indent=4)
+            print(f"Saved user data to {processed_path}")
+            return combined
+        except Exception as e:
+            print(f"Warning: Failed to fetch user data for {entry_id}: {e}")
+            return None
+
+    def fetch_league_data(self, league_id):
+        """Fetches standings for a specific classic league."""
+        print(f"Fetching league standings for league {league_id}...")
+        url = ENDPOINTS["league_standings"].format(league_id=league_id)
+        try:
+            data = self._get(url)
+            raw_path = RAW_DIR / "league" / f"league_{league_id}.json"
+            processed_path = PROCESSED_DIR / "user_league.json"
+            with open(raw_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4)
+            with open(processed_path, "w", encoding="utf-8") as f:
+                json.dump(data, f, indent=4)
+            print(f"Saved league data to {processed_path}")
+            return data
+        except Exception as e:
+            print(f"Warning: Failed to fetch league data for {league_id}: {e}")
+            return None
+
     def process_bootstrap_static(self, bootstrap_data=None):
         """Parses bootstrap-static JSON and extracts structured CSVs for teams, players, and events."""
         if not bootstrap_data:
