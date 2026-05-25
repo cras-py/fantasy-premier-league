@@ -5,6 +5,7 @@ import './index.css'
 import agentDataRaw from '../../../data/processed/agent_recommendations.json'
 import userEntryRaw from '../../../data/processed/user_entry.json'
 import userLeagueRaw from '../../../data/processed/user_league.json'
+import WeeklyReport from './components/WeeklyReport'
 
 function App() {
   const [activeTab, setActiveTab] = useState('team')
@@ -52,6 +53,12 @@ function App() {
             onClick={() => setActiveTab('agent')}
           >
             Agent Insights
+          </button>
+          <button 
+            className={`nav-tab ${activeTab === 'report' ? 'active' : ''}`}
+            onClick={() => setActiveTab('report')}
+          >
+            Weekly PDF
           </button>
         </div>
       </header>
@@ -142,6 +149,10 @@ function App() {
               <p>Loading agent insights...</p>
             )}
           </div>
+        )}
+
+        {activeTab === 'report' && (
+          <WeeklyReport />
         )}
       </main>
     </div>

@@ -1,6 +1,7 @@
 import argparse
 import sys
 from src.data_extraction.extractor import FPLExtractor
+from src.data_extraction.pdf_report_generator import generate_pdf_report
 
 def main():
     parser = argparse.ArgumentParser(
@@ -62,9 +63,14 @@ def main():
         if args.gw:
             extractor.fetch_live_gw_data(args.gw)
             
+        print("\n==================================================")
+        generate_pdf_report()
+        print("==================================================")
+            
         print("\nExtraction process completed successfully!")
         print("Raw outputs saved in 'data/raw/'")
         print("Processed tables saved in 'data/processed/'")
+        print("PDF report saved in 'src/dashboard/public/'")
         print("==================================================")
         
     except Exception as e:
